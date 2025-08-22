@@ -16,12 +16,12 @@ from utils.ai_insights import WellnessAIAnalyst, get_cached_insights
 # Page config
 st.set_page_config(
     page_title="Team Wellness Tracker",
-    page_icon="💪",
+    page_icon="",
     layout="wide"
 )
 
 # DIAGNOSTIC MODE - Remove this section once connection is working
-if st.checkbox("🔧 Show Connection Diagnostics", key="show_diagnostics"):
+if st.checkbox("Show Connection Diagnostics", key="show_diagnostics"):
     st.warning("Diagnostic Mode - Remove this once connection is working")
     
     col1, col2 = st.columns(2)
@@ -29,20 +29,20 @@ if st.checkbox("🔧 Show Connection Diagnostics", key="show_diagnostics"):
     with col1:
         st.subheader("Secrets Check")
         if 'GOOGLE_SHEET_NAME' in st.secrets:
-            st.success(f"✅ Sheet name: {st.secrets['GOOGLE_SHEET_NAME']}")
+            st.success(f"Sheet name: {st.secrets['GOOGLE_SHEET_NAME']}")
         else:
-            st.error("❌ GOOGLE_SHEET_NAME not in secrets")
+            st.error("GOOGLE_SHEET_NAME not in secrets")
         
         if 'gcp_service_account' in st.secrets:
-            st.success("✅ Service account found")
+            st.success("Service account found")
             try:
                 email = st.secrets["gcp_service_account"].get("client_email", "Unknown")
-                st.info(f"📧 Service email: {email}")
+                st.info(f"Service email: {email}")
                 st.caption("Share your sheet with this email!")
             except:
                 st.error("Can't read service account email")
         else:
-            st.error("❌ No service account in secrets")
+            st.error("No service account in secrets")
     
     with col2:
         st.subheader("Quick Test")
@@ -63,7 +63,7 @@ if st.checkbox("🔧 Show Connection Diagnostics", key="show_diagnostics"):
                 sheet_name = st.secrets.get("GOOGLE_SHEET_NAME")
                 if sheet_name:
                     sheet = client.open(sheet_name)
-                    st.success(f"✅ Connected to: {sheet_name}")
+                    st.success(f"Connected to: {sheet_name}")
                     
                     worksheets = [ws.title for ws in sheet.worksheets()]
                     st.write(f"Worksheets: {', '.join(worksheets)}")
@@ -71,16 +71,16 @@ if st.checkbox("🔧 Show Connection Diagnostics", key="show_diagnostics"):
                     st.error("No sheet name configured")
                     
             except gspread.exceptions.SpreadsheetNotFound:
-                st.error(f"❌ Sheet '{sheet_name}' not found or not shared")
+                st.error(f"Sheet '{sheet_name}' not found or not shared")
                 st.info("Fix: Share your Google Sheet with the service account email above")
             except Exception as e:
-                st.error(f"❌ Error: {str(e)}")
+                st.error(f"Error: {str(e)}")
     
     st.divider()
     # END DIAGNOSTIC MODE
 
 # Title
-st.title("🏃 Team Wellness Dashboard")
+st.title("Team Wellness Dashboard")
 st.markdown("Connected to Google Forms for real-time wellness tracking")
 
 # Sidebar for controls
@@ -88,10 +88,10 @@ with st.sidebar:
     # Add logo at the top of sidebar
     st.image("SSALogoTransparent.jpeg", use_container_width=True)
     
-    st.header("⚙️ Configuration")
+    st.header("Configuration")
     
     # Connection status
-    with st.expander("🔗 Google Sheets Connection"):
+    with st.expander("Google Sheets Connection"):
         if st.button("Test Connection"):
             success, message = validate_google_connection()
             if success:
@@ -100,7 +100,7 @@ with st.sidebar:
                 st.error(message)
     
     # Refresh button
-    if st.button("🔄 Refresh Data"):
+    if st.button("Refresh Data"):
         refresh_data()
     
     # Auto-refresh option
@@ -109,7 +109,7 @@ with st.sidebar:
         st.info("Data will refresh automatically")
     
     # Configuration help
-    with st.expander("📝 Configuration Help"):
+    with st.expander("Configuration Help"):
         st.markdown("""
         **Required Setup:**
         1. Google Sheet name/URL in environment
@@ -153,7 +153,7 @@ try:
         st.metric("Avg Team Readiness", f"{avg_readiness:.1f}")
     
     # Tabs for different views
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "👤 Individual", "🤖 AI Insights", "📈 Raw Data"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Individual", "AI Insights", "Raw Data"])
     
     with tab1:
         st.header("Team Overview")
@@ -194,10 +194,10 @@ try:
                 col1, col2, col3, col4 = st.columns(4)
                 
                 metrics = [
-                    ('Readiness', '🎯'),
-                    ('Sleep', '😴'),
-                    ('Energy', '⚡'),
-                    ('Stress', '😰')
+                    ('Readiness', ''),
+                    ('Sleep', ''),
+                    ('Energy', ''),
+                    ('Stress', '')
                 ]
                 
                 for (metric, emoji), col in zip(metrics, [col1, col2, col3, col4]):
@@ -222,7 +222,7 @@ try:
         # Check if API key is configured
         analyst = WellnessAIAnalyst()
         if not analyst.client:
-            st.warning("⚠️ OpenAI API key not configured.")
+            st.warning("OpenAI API key not configured.")
             with st.expander("Setup Instructions"):
                 st.markdown("""
                 **To enable AI insights:**
@@ -270,7 +270,7 @@ try:
                         st.error("Please select two different athletes")
     
     with tab4:
-        st.header("📈 Raw Data")
+        st.header("Raw Data")
         
         # Data filters
         col1, col2 = st.columns(2)
@@ -307,7 +307,7 @@ try:
         # Download button
         csv = filtered_df.to_csv(index=False)
         st.download_button(
-            label="📥 Download Data as CSV",
+            label="Download Data as CSV",
             data=csv,
             file_name=f"wellness_data_{datetime.now().strftime('%Y%m%d')}.csv",
             mime="text/csv"
@@ -316,7 +316,7 @@ try:
 except Exception as e:
     st.error(f"Error loading data: {str(e)}")
     
-    with st.expander("📋 Setup Instructions", expanded=True):
+    with st.expander("Setup Instructions", expanded=True):
         st.markdown("""
         ### Quick Setup Guide
         
@@ -356,4 +356,4 @@ except Exception as e:
 
 # Footer
 st.markdown("---")
-st.markdown("💪 Wellness Tracker | Data synced with Google Forms")
+st.markdown("Wellness Tracker | Data synced with Google Forms")
