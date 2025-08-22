@@ -20,6 +20,65 @@ st.set_page_config(
     layout="wide"
 )
 
+# DIAGNOSTIC MODE - Remove this section once connection is working
+if st.checkbox("🔧 Show Connection Diagnostics", key="show_diagnostics"):
+    st.warning("Diagnostic Mode - Remove this once connection is working")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("Secrets Check")
+        if 'GOOGLE_SHEET_NAME' in st.secrets:
+            st.success(f"✅ Sheet name: {st.secrets['GOOGLE_SHEET_NAME']}")
+        else:
+            st.error("❌ GOOGLE_SHEET_NAME not in secrets")
+        
+        if 'gcp_service_account' in st.secrets:
+            st.success("✅ Service account found")
+            try:
+                email = st.secrets["gcp_service_account"].get("client_email", "Unknown")
+                st.info(f"📧 Service email: {email}")
+                st.caption("Share your sheet with this email!")
+            except:
+                st.error("Can't read service account email")
+        else:
+            st.error("❌ No service account in secrets")
+    
+    with col2:
+        st.subheader("Quick Test")
+        if st.button("Test Connection"):
+            try:
+                import gspread
+                from oauth2client.service_account import ServiceAccountCredentials
+                
+                creds_dict = dict(st.secrets["gcp_service_account"])
+                creds_dict['type'] = 'service_account'  # Force correct type
+                
+                scope = ['https://spreadsheets.google.com/feeds',
+                        'https://www.googleapis.com/auth/drive']
+                
+                creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+                client = gspread.authorize(creds)
+                
+                sheet_name = st.secrets.get("GOOGLE_SHEET_NAME")
+                if sheet_name:
+                    sheet = client.open(sheet_name)
+                    st.success(f"✅ Connected to: {sheet_name}")
+                    
+                    worksheets = [ws.title for ws in sheet.worksheets()]
+                    st.write(f"Worksheets: {', '.join(worksheets)}")
+                else:
+                    st.error("No sheet name configured")
+                    
+            except gspread.exceptions.SpreadsheetNotFound:
+                st.error(f"❌ Sheet '{sheet_name}' not found or not shared")
+                st.info("Fix: Share your Google Sheet with the service account email above")
+            except Exception as e:
+                st.error(f"❌ Error: {str(e)}")
+    
+    st.divider()
+    # END DIAGNOSTIC MODE
+
 # Title
 st.title("🏃 Team Wellness Dashboard")
 st.markdown("Connected to Google Forms for real-time wellness tracking")
