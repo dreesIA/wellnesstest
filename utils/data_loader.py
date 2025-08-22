@@ -20,14 +20,16 @@ def get_credentials():
     """
     # Try to load from Streamlit secrets first (for deployment)
     try:
-        if 'service_account' in st.secrets:
+        if 'gcp_service_account' in st.secrets:
+            # Convert to dict if needed
+            creds_dict = dict(st.secrets["gcp_service_account"])
             return ServiceAccountCredentials.from_json_keyfile_dict(
-                st.secrets["service_account"],
+                creds_dict,
                 ['https://spreadsheets.google.com/feeds',
                  'https://www.googleapis.com/auth/drive']
             )
-    except:
-        pass
+    except Exception as e:
+        print(f"Error loading from secrets: {e}")
     
     # Fall back to local file
     if os.path.exists("gspread_credentials.json"):
