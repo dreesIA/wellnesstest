@@ -1,12 +1,17 @@
-# main.py or app.py
+# app.py
 """
 Main Streamlit application for Wellness Tracking
+All sensitive configuration should be in .env or Streamlit secrets
 """
 
 import streamlit as st
 import pandas as pd
-from utils.data_loader import load_google_sheet, refresh_data, validate_google_connection
-from utils.ai_insights import WellnessAIAnalyst, get_cached_insights
+import os
+from datetime import datetime
+
+# Fix imports - files are in root directory, not utils folder
+from data_loader import load_google_sheet, refresh_data, validate_google_connection
+from ai_insights import WellnessAIAnalyst, get_cached_insights
 
 # Page config
 st.set_page_config(
@@ -40,13 +45,26 @@ with st.sidebar:
     auto_refresh = st.checkbox("Auto-refresh every 5 minutes")
     if auto_refresh:
         st.info("Data will refresh automatically")
+    
+    # Configuration help
+    with st.expander("📝 Configuration Help"):
+        st.markdown("""
+        **Required Setup:**
+        1. Google Sheet name/URL in environment
+        2. Service account credentials
+        3. Sheet shared with service account
+        
+        **Optional:**
+        - OpenAI API key for AI insights
+        
+        See documentation for details.
+        """)
 
 # Load data
 try:
-    # You can specify the sheet name or URL here
-    # The function will also check environment variables and secrets
+    # Load from Google Sheets - configuration comes from environment/secrets
+    # No hardcoded sheet names or URLs
     df = load_google_sheet(
-        sheet_title="Your Wellness Form (Responses)",  # Replace with your sheet name
         worksheet_name="Form Responses 1"  # Default for Google Forms
     )
     
@@ -87,7 +105,7 @@ try:
         )
         
         # Team averages chart
-        if 'Readiness' in df.columns:
+        if 'Readiness' in df.columns and 'Date' in df.columns:
             st.subheader("Team Readiness Trend")
             daily_avg = df.groupby('Date')['Readiness'].mean().reset_index()
             st.line_chart(daily_avg.set_index('Date'))
@@ -137,8 +155,16 @@ try:
         # Check if API key is configured
         analyst = WellnessAIAnalyst()
         if not analyst.client:
-            st.warning("⚠️ OpenAI API key not configured. Add OPENAI_API_KEY to enable AI insights.")
-            st.info("You can add it to your `.env` file or Streamlit secrets.")
+            st.warning("⚠️ OpenAI API key not configured.")
+            with st.expander("Setup Instructions"):
+                st.markdown("""
+                **To enable AI insights:**
+                
+                1. Get an API key from [OpenAI](https://platform.openai.com/api-keys)
+                2. Add to your environment:
+                   - Local: Create `.env` file with `OPENAI_API_KEY=your-key`
+                   - Streamlit Cloud: Add to Secrets
+                """)
         else:
             insight_type = st.radio(
                 "Select Insight Type",
@@ -184,7 +210,7 @@ try:
         with col1:
             filter_athlete = st.multiselect(
                 "Filter by Athlete",
-                options=athletes,
+                options=athletes if 'Athlete' in df.columns else [],
                 default=[]
             )
         
@@ -216,38 +242,50 @@ try:
         st.download_button(
             label="📥 Download Data as CSV",
             data=csv,
-            file_name=f"wellness_data_{pd.Timestamp.now().strftime('%Y%m%d')}.csv",
+            file_name=f"wellness_data_{datetime.now().strftime('%Y%m%d')}.csv",
             mime="text/csv"
         )
 
 except Exception as e:
     st.error(f"Error loading data: {str(e)}")
     
-    st.info("""
-    ### 📋 Setup Instructions:
-    
-    1. **Create your Google Form** with these fields:
-       - Name/Athlete (Text)
-       - Sleep Quality (1-10 scale)
-       - Mood (1-10 scale)
-       - Energy Level (1-10 scale)
-       - Stress Level (1-10 scale)
-       - Soreness (1-10 scale)
-       - Fatigue (1-10 scale)
-    
-    2. **Link Form to Google Sheets**:
-       - In Google Forms, go to Responses tab
-       - Click the Sheets icon to create linked spreadsheet
-    
-    3. **Set up API access**:
-       - Create service account in Google Cloud Console
-       - Download credentials as `gspread_credentials.json`
-       - Share your Google Sheet with the service account email
-    
-    4. **Configure the app**:
-       - Add sheet name/URL to environment variables
-       - Add OpenAI API key for AI insights
-    """)
+    with st.expander("📋 Setup Instructions", expanded=True):
+        st.markdown("""
+        ### Quick Setup Guide
+        
+        **1. Create your Google Form** with these fields:
+        - Name/Athlete (Text)
+        - Sleep Quality (1-10 scale)
+        - Mood (1-10 scale)
+        - Energy Level (1-10 scale)
+        - Stress Level (1-10 scale)
+        - Soreness (1-10 scale)
+        - Fatigue (1-10 scale)
+        
+        **2. Link Form to Google Sheets**:
+        - In Google Forms, go to Responses tab
+        - Click the Sheets icon to create linked spreadsheet
+        
+        **3. Set up API access**:
+        - Create service account in [Google Cloud Console](https://console.cloud.google.com)
+        - Download credentials JSON file
+        - Share your Google Sheet with the service account email
+        
+        **4. Configure environment variables**:
+        Create `.env` file in project root:
+        ```
+        GOOGLE_SHEET_NAME=YourSheetName
+        # or
+        GOOGLE_SHEET_URL=https://docs.google.com/spreadsheets/d/...
+        OPENAI_API_KEY=your-key-here (optional)
+        ```
+        
+        **5. Add credentials**:
+        - Save service account JSON as `gspread_credentials.json`
+        - Or add to Streamlit secrets for deployment
+        
+        For detailed instructions, see the [documentation](https://github.com/yourusername/wellness-dashboard).
+        """)
 
 # Footer
 st.markdown("---")
