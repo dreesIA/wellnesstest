@@ -22,7 +22,7 @@ def get_credentials():
     try:
         if 'service_account' in st.secrets:
             return ServiceAccountCredentials.from_json_keyfile_dict(
-                st.secrets["gcp_service_account"],
+                st.secrets["service_account"],
                 ['https://spreadsheets.google.com/feeds',
                  'https://www.googleapis.com/auth/drive']
             )
