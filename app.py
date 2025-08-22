@@ -356,4 +356,4 @@ except Exception as e:
 
 # Footer
 st.markdown("---")
-st.markdown("Wellness Tracker | Data synced with Google Forms")
+st.markdown("Made by Idrees Ihsanullah | Data synced with Google Forms")
