@@ -20,7 +20,7 @@ def get_credentials():
     """
     # Try to load from Streamlit secrets first (for deployment)
     try:
-        if 'gcp_service_account' in st.secrets:
+        if 'service_account' in st.secrets:
             return ServiceAccountCredentials.from_json_keyfile_dict(
                 st.secrets["gcp_service_account"],
                 ['https://spreadsheets.google.com/feeds',
