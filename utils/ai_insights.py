@@ -21,15 +21,16 @@ def init_openai_client():
     """Initialize OpenAI client with API key from environment or Streamlit secrets."""
     api_key = None
     
-    # Try environment variable first
-    api_key = os.getenv("OPENAI_API_KEY")
+    # Try Streamlit secrets first (for deployment)
+    try:
+        if 'OPENAI_API_KEY' in st.secrets:
+            api_key = st.secrets['OPENAI_API_KEY']
+    except:
+        pass
     
-    # Try Streamlit secrets if available
+    # Try environment variable second
     if not api_key:
-        try:
-            api_key = st.secrets["OPENAI_API_KEY"]
-        except:
-            pass
+        api_key = os.getenv("OPENAI_API_KEY")
     
     if api_key:
         return openai.OpenAI(api_key=api_key)
