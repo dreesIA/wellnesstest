@@ -1,4 +1,4 @@
-# data_loader.py
+# utils/data_loader.py
 """
 Data loader module for fetching data from Google Sheets connected to Google Forms.
 Handles authentication, caching, and data normalization.
@@ -128,6 +128,7 @@ def load_google_sheet(
 def normalize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
     Normalize column names from Google Forms and process data types.
+    FIXED: Handles duplicate columns properly
     
     Args:
         df: Raw DataFrame from Google Sheets or CSV
@@ -135,6 +136,26 @@ def normalize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         Processed DataFrame with standardized columns
     """
+    
+    # Debug: Show original columns
+    print(f"Original columns: {list(df.columns)}")
+    
+    # First, check for and handle duplicate column names
+    # This can happen if the form has multiple questions with similar names
+    columns = list(df.columns)
+    seen = {}
+    new_columns = []
+    
+    for col in columns:
+        if col in seen:
+            seen[col] += 1
+            new_columns.append(f"{col}_{seen[col]}")
+        else:
+            seen[col] = 0
+            new_columns.append(col)
+    
+    df.columns = new_columns
+    print(f"After handling duplicates: {list(df.columns)}")
     
     # More comprehensive column mapping for Google Forms
     column_mapping = {
@@ -163,6 +184,7 @@ def normalize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         'Sleep Quality': 'Sleep',
         'Rate your sleep quality (1-10)': 'Sleep',
         'Sleep (1-10)': 'Sleep',
+        'Sleep': 'Sleep',
         
         'How is your mood?': 'Mood',
         'Mood': 'Mood',
@@ -194,14 +216,38 @@ def normalize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         'Fatigue Level (1-10)': 'Fatigue',
     }
     
-    # Apply column mapping (case-insensitive)
-    df.columns = [column_mapping.get(col, col) for col in df.columns]
+    # Create a new dataframe with renamed columns to avoid duplicates
+    renamed_df = pd.DataFrame()
+    columns_used = set()
     
-    # Also try case-insensitive matching for unmapped columns
-    for old_col, new_col in column_mapping.items():
-        for df_col in df.columns:
-            if df_col.lower() == old_col.lower() and df_col != new_col:
-                df = df.rename(columns={df_col: new_col})
+    for old_col in df.columns:
+        # Check if this column should be renamed
+        new_col = None
+        
+        # First try exact match
+        if old_col in column_mapping:
+            new_col = column_mapping[old_col]
+        else:
+            # Try case-insensitive match
+            for map_old, map_new in column_mapping.items():
+                if old_col.lower().strip() == map_old.lower().strip():
+                    new_col = map_new
+                    break
+        
+        # If we found a mapping and haven't used this column yet
+        if new_col and new_col not in columns_used:
+            renamed_df[new_col] = df[old_col]
+            columns_used.add(new_col)
+        elif new_col in columns_used:
+            # Skip duplicate mappings
+            print(f"Skipping duplicate column mapping: {old_col} -> {new_col}")
+        else:
+            # Keep unmapped columns with original name if not already used
+            if old_col not in renamed_df.columns:
+                renamed_df[old_col] = df[old_col]
+    
+    df = renamed_df
+    print(f"After renaming: {list(df.columns)}")
     
     # Convert Timestamp to datetime and extract Date
     if 'Timestamp' in df.columns:
@@ -233,6 +279,12 @@ def normalize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     
     # Remove any completely empty rows
     df = df.dropna(how='all')
+    
+    # Final check for duplicate columns
+    if df.columns.duplicated().any():
+        print(f"Warning: Duplicate columns found after processing: {df.columns[df.columns.duplicated()].tolist()}")
+        # Remove duplicate columns, keeping first
+        df = df.loc[:, ~df.columns.duplicated()]
     
     return df
 
