@@ -217,7 +217,7 @@ try:
                     st.line_chart(chart_data)
     
     with tab3:
-        st.header("🤖 AI-Powered Insights")
+        st.header("AI-Powered Insights")
         
         # Check if API key is configured
         analyst = WellnessAIAnalyst()
