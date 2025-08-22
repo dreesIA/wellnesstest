@@ -9,9 +9,9 @@ import pandas as pd
 import os
 from datetime import datetime
 
-# Fix imports - files are in root directory, not utils folder
-from data_loader import load_google_sheet, refresh_data, validate_google_connection
-from ai_insights import WellnessAIAnalyst, get_cached_insights
+# Import from utils folder
+from utils.data_loader import load_google_sheet, refresh_data, validate_google_connection
+from utils.ai_insights import WellnessAIAnalyst, get_cached_insights
 
 # Page config
 st.set_page_config(
