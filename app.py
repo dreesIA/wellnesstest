@@ -86,7 +86,7 @@ st.markdown("Connected to Google Forms for real-time wellness tracking")
 # Sidebar for controls
 with st.sidebar:
     # Add logo at the top of sidebar
-    st.image("SSALogoTransparent.png", use_column_width=True)
+    st.image("SSALogoTransparent.png", use_container_width=True)
     
     st.header("⚙️ Configuration")
     
