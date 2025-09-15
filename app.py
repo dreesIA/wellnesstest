@@ -16,12 +16,12 @@ from utils.ai_insights import WellnessAIAnalyst, get_cached_insights
 # Page config
 st.set_page_config(
     page_title="Goalkeeper Wellness Tracker",
-    page_icon="🥅",
+    page_icon="",
     layout="wide"
 )
 
 # Title
-st.title("🥅 Goalkeeper Wellness Dashboard")
+st.title("Goalkeeper Wellness Dashboard")
 st.markdown("Southern Soccer Academy - Swarm FC Goalkeeper Training")
 
 # Sidebar for controls
@@ -34,15 +34,15 @@ with st.sidebar:
         # Styled fallback when image not found
         st.markdown("""
         <div style="text-align: center; padding: 20px; background-color: #B8352F; border-radius: 10px; margin-bottom: 20px;">
-            <h2 style="color: white; margin: 0;">🐝 SWARM FC</h2>
+            <h2 style="color: white; margin: 0;"> SWARM FC</h2>
             <p style="color: white; margin: 5px 0 0 0; font-size: 0.9em;">Goalkeeper Academy</p>
         </div>
         """, unsafe_allow_html=True)
     
-    st.header("⚙️ Controls")
+    st.header("Controls")
     
     # Refresh button
-    if st.button("🔄 Refresh Data"):
+    if st.button("Refresh Data"):
         refresh_data()
     
     # Auto-refresh option
@@ -53,7 +53,7 @@ with st.sidebar:
     # Add keeper info at bottom of sidebar
     st.markdown("---")
     st.markdown("**Southern Soccer Academy**")
-    st.caption("Swarm FC Goalkeepers 2024")
+    st.caption("Swarm Goalkeepers")
 
 # Load data
 try:
@@ -84,7 +84,7 @@ try:
         st.metric("Avg GK Readiness", f"{avg_readiness:.1f}")
     
     # Tabs for different views
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Goalkeepers Overview", "🥅 Individual Keeper", "🤖 AI Insights", "📈 Raw Data"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Goalkeepers Overview", "Individual Keeper", "AI Insights", "Raw Data"])
     
     with tab1:
         st.header("Goalkeepers Overview")
@@ -99,12 +99,12 @@ try:
             col1, col2, col3, col4, col5, col6 = st.columns(6)
             
             metrics = [
-                ('Sleep', '😴', col1),
-                ('Mood', '😊', col2),
-                ('Energy', '⚡', col3),
-                ('Stress', '😰', col4),
-                ('Soreness', '🦵', col5),
-                ('Fatigue', '😫', col6)
+                ('Sleep', '', col1),
+                ('Mood', '', col2),
+                ('Energy', '', col3),
+                ('Stress', '', col4),
+                ('Soreness', '', col5),
+                ('Fatigue', '', col6)
             ]
             
             for metric, emoji, col in metrics:
@@ -146,11 +146,11 @@ try:
                                 if pd.notna(readiness):
                                     # Color code based on readiness
                                     if readiness >= 7:
-                                        color = "🟢"
+                                        color = ""
                                     elif readiness >= 5:
-                                        color = "🟡"
+                                        color = ""
                                     else:
-                                        color = "🔴"
+                                        color = ""
                                     
                                     st.markdown(f"{color} **Readiness: {readiness:.1f}/10**")
                             
@@ -179,12 +179,12 @@ try:
                 col1, col2, col3, col4, col5, col6 = st.columns(6)
                 
                 metrics = [
-                    ('Readiness', '🎯', col1),
-                    ('Sleep', '😴', col2),
-                    ('Energy', '⚡', col3),
-                    ('Stress', '😰', col4),
-                    ('Soreness', '🦵', col5),
-                    ('Fatigue', '😫', col6)
+                    ('Readiness', '', col1),
+                    ('Sleep', '', col2),
+                    ('Energy', '', col3),
+                    ('Stress', '', col4),
+                    ('Soreness', '', col5),
+                    ('Fatigue', '', col6)
                 ]
                 
                 for metric, emoji, col in metrics:
@@ -213,12 +213,12 @@ try:
                 st.dataframe(recent_data, use_container_width=True, hide_index=True)
     
     with tab3:
-        st.header("🤖 AI-Powered Goalkeeper Insights")
+        st.header("AI-Powered Goalkeeper Insights")
         
         # Check if API key is configured
         analyst = WellnessAIAnalyst()
         if not analyst.client:
-            st.warning("⚠️ OpenAI API key not configured.")
+            st.warning("OpenAI API key not configured.")
             with st.expander("Setup Instructions"):
                 st.markdown("""
                 **To enable AI insights:**
@@ -266,7 +266,7 @@ try:
                         st.error("Please select two different goalkeepers")
     
     with tab4:
-        st.header("📈 Raw Data")
+        st.header("Raw Data")
         
         # Data filters
         col1, col2 = st.columns(2)
@@ -303,7 +303,7 @@ try:
         # Download button
         csv = filtered_df.to_csv(index=False)
         st.download_button(
-            label="📥 Download Goalkeeper Data as CSV",
+            label="Download Goalkeeper Data as CSV",
             data=csv,
             file_name=f"goalkeeper_wellness_{datetime.now().strftime('%Y%m%d')}.csv",
             mime="text/csv"
@@ -312,7 +312,7 @@ try:
 except Exception as e:
     st.error(f"Error loading data: {str(e)}")
     
-    with st.expander("📋 Setup Instructions", expanded=True):
+    with st.expander("Setup Instructions", expanded=True):
         st.markdown("""
         ### Goalkeeper Wellness Tracking Setup
         
