@@ -28,8 +28,8 @@ st.markdown("Southern Soccer Academy - Swarm FC Goalkeeper Training")
 with st.sidebar:
     # Add logo or fallback
     import os
-    if os.path.exists("SSALogoTransparent.png"):
-        st.image("SSALogoTransparent.png", use_column_width=True)
+    if os.path.exists("SSALogoTransparent.jpeg"):
+        st.image("SSALogoTransparent.jpeg", use_column_width=True)
     else:
         # Styled fallback when image not found
         st.markdown("""
