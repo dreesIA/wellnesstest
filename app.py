@@ -29,7 +29,7 @@ with st.sidebar:
     # Add logo or fallback
     import os
     if os.path.exists("SSALogoTransparent.jpeg"):
-        st.image("SSALogoTransparent.jpeg", use_column_width=True)
+        st.image("SSALogoTransparent.jpeg", use_container_width=True)
     else:
         # Styled fallback when image not found
         st.markdown("""
